@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import usePrevious from '../hooks/usePrevious';
 
 describe('usePrevious', () => {
@@ -12,15 +12,11 @@ describe('usePrevious', () => {
       initialProps: { value: 'first' },
     });
 
-    act(() => {
-      rerender({ value: 'second' });
-    });
+    rerender({ value: 'second' });
 
     expect(result.current).toBe('first');
 
-    act(() => {
-      rerender({ value: 'third' });
-    });
+    rerender({ value: 'third' });
 
     expect(result.current).toBe('second');
   });

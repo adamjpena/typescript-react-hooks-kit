@@ -10,7 +10,7 @@ npm install typescript-react-hooks-kit
 
 ## Hooks
 
-### 1. `useDebounce`
+### `useDebounce`
 
 **Description:** Delays updating a value until a specified time has passed without changes.
 
@@ -27,7 +27,85 @@ const MyComponent = () => {
 };
 ```
 
-### 2. `useLocalStorage`
+### `useThrottle`
+
+**Description:** Limits how often a function can be called.
+
+**Usage:**
+
+```typescript
+import { useThrottle } from 'typescript-react-hooks-kit';
+
+const MyComponent = () => {
+  const [value, setValue] = useState('');
+  const throttledValue = useThrottle(value, 1000);
+
+  return <input value={throttledValue} onChange={(e) => setValue(e.target.value)} />;
+};
+```
+
+### `useAsync`
+
+**Description:** Manages an asynchronous operation, handling loading, error, and result states.
+
+**Usage:**
+
+```typescript
+import { useAsync } from 'typescript-react-hooks-kit';
+
+const MyComponent = () => {
+  const { loading, error, value } = useAsync(async () => {
+    const response = await fetch('https://api.example.com/data');
+    return response.json();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return <div>Data: {JSON.stringify(value)}</div>;
+};
+```
+
+### `useFetch`
+
+**Description:** Handles fetching data from an API with loading and error states.
+
+**Usage:**
+
+```typescript
+import { useFetch } from 'typescript-react-hooks-kit';
+
+const MyComponent = () => {
+  const { data, loading, error } = useFetch('https://api.example.com/data');
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return <div>Data: {JSON.stringify(data)}</div>;
+};
+```
+
+### `useInterval`
+
+**Description:** Runs a function at specified intervals, like `setInterval`.
+
+**Usage:**
+
+```typescript
+import { useInterval } from 'typescript-react-hooks-kit';
+
+const MyComponent = () => {
+  const [count, setCount] = useState(0);
+
+  useInterval(() => {
+    setCount((prevCount) => prevCount + 1);
+  }, 1000);
+
+  return <div>Count: {count}</div>;
+};
+```
+
+### `useLocalStorage`
 
 **Description:** Simplifies working with `localStorage` in React.
 
@@ -43,44 +121,7 @@ const MyComponent = () => {
 };
 ```
 
-### 3. `usePrevious`
-
-**Description:** Tracks the previous value of a state or prop.
-
-**Usage:**
-
-```typescript
-import { usePrevious } from 'typescript-react-hooks-kit';
-
-const MyComponent = ({ value }) => {
-  const prevValue = usePrevious(value);
-
-  return <div>Current: {value}, Previous: {prevValue}</div>;
-};
-```
-
-### 4. `useOnClickOutside`
-
-**Description:** Detects clicks outside a specified element and triggers a handler.
-
-**Usage:**
-
-```typescript
-import { useRef } from 'react';
-import { useOnClickOutside } from 'typescript-react-hooks-kit';
-
-const MyComponent = () => {
-  const ref = useRef(null);
-
-  useOnClickOutside(ref, () => {
-    console.log('Clicked outside!');
-  });
-
-  return <div ref={ref}>Click outside me!</div>;
-};
-```
-
-### 5. `useToggle`
+### `useToggle`
 
 **Description:** Provides simple toggle logic for boolean states.
 
@@ -102,81 +143,40 @@ const MyComponent = () => {
 };
 ```
 
-### 6. `useFetch`
+### `usePrevious`
 
-**Description:** Handles fetching data from an API with loading and error states.
+**Description:** Tracks the previous value of a state or prop.
 
 **Usage:**
 
 ```typescript
-import { useFetch } from 'typescript-react-hooks-kit';
+import { usePrevious } from 'typescript-react-hooks-kit';
 
-const MyComponent = () => {
-  const { data, loading, error } = useFetch('https://api.example.com/data');
+const MyComponent = ({ value }) => {
+  const prevValue = usePrevious(value);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  return <div>Data: {JSON.stringify(data)}</div>;
+  return <div>Current: {value}, Previous: {prevValue}</div>;
 };
 ```
 
-### 7. `useInterval`
+### `useOnClickOutside`
 
-**Description:** Runs a function at specified intervals, like `setInterval`.
-
-**Usage:**
-
-```typescript
-import { useInterval } from 'typescript-react-hooks-kit';
-
-const MyComponent = () => {
-  const [count, setCount] = useState(0);
-
-  useInterval(() => {
-    setCount((prevCount) => prevCount + 1);
-  }, 1000);
-
-  return <div>Count: {count}</div>;
-};
-```
-
-### 8. `useThrottle`
-
-**Description:** Limits how often a function can be called.
+**Description:** Detects clicks outside a specified element and triggers a handler.
 
 **Usage:**
 
 ```typescript
-import { useThrottle } from 'typescript-react-hooks-kit';
+import { useRef } from 'react';
+import { useOnClickOutside } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
-  const [value, setValue] = useState('');
-  const throttledValue = useThrottle(value, 1000);
+  const ref = useRef(null);
 
-  return <input value={throttledValue} onChange={(e) => setValue(e.target.value)} />;
-};
-```
+  useOnClickOutside(ref, () => {
+    console.log('Clicked outside!');
+  });
 
-### 9. `useAsync`
-
-**Description:** Manages an asynchronous operation, handling loading, error, and result states.
-
-**Usage:**
-
-```typescript
-import { useAsync } from 'typescript-react-hooks-kit';
-
-const MyComponent = () => {
-  const { loading, error, value } = useAsync(async () => {
-    const response = await fetch('https://api.example.com/data');
-    return response.json();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  return <div>Data: {JSON.stringify(value)}</div>;
+  return <div ref={ref}>Click outside me!</div>;
 };
 ```
 

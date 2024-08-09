@@ -1,13 +1,24 @@
 {
   "name": "typescript-react-hooks-kit",
-  "version": "0.4.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.4.5",
+  "description": "A collection of reusable, well-documented React hooks written in TypeScript.",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "rollup -c",
     "test": "jest"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "react",
+    "hooks",
+    "typescript",
+    "reusable"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adamjpena/typescript-react-hooks-kit.git"
+  },
+  "homepage": "https://github.com/adamjpena/typescript-react-hooks-kit#readme",
+  "author": "Adam Peña",
   "license": "MIT",
   "dependencies": {
     "react": "^17.0.0",

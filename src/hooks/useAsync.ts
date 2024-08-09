@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
+/**
+ * useAsync - A hook that manages an asynchronous operation, handling loading, error, and result states.
+ * @param asyncFunction - The async function to execute.
+ * @param dependencies - An array of dependencies that, when changed, re-execute the async function.
+ * @returns An object containing loading, error, and value states.
+ */
+
 function useAsync<T>(
   asyncFunction: () => Promise<T>,
   dependencies: any[] = [],

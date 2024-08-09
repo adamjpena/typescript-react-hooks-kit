@@ -1,25 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 
+/**
+ * useOnClickOutside - A hook that triggers a handler when a click occurs outside a specified element.
+ * @param ref - A React ref pointing to the element to detect outside clicks.
+ * @param handler - A function to call when an outside click is detected.
+ */
 function useOnClickOutside(
   ref: React.RefObject<HTMLElement>,
   handler: (event: MouseEvent | TouchEvent) => void,
 ) {
-  useEffect(() => {
-    const listener = (event: MouseEvent | TouchEvent) => {
+  const memoizedHandler = useCallback(
+    (event: MouseEvent | TouchEvent) => {
       if (!ref.current || ref.current.contains(event.target as Node)) {
         return;
       }
       handler(event);
-    };
+    },
+    [ref, handler],
+  );
 
-    document.addEventListener('mousedown', listener);
-    document.addEventListener('touchstart', listener);
+  useEffect(() => {
+    document.addEventListener('mousedown', memoizedHandler);
+    document.addEventListener('touchstart', memoizedHandler);
 
     return () => {
-      document.removeEventListener('mousedown', listener);
-      document.removeEventListener('touchstart', listener);
+      document.removeEventListener('mousedown', memoizedHandler);
+      document.removeEventListener('touchstart', memoizedHandler);
     };
-  }, [ref, handler]);
+  }, [memoizedHandler]);
 }
 
 export default useOnClickOutside;

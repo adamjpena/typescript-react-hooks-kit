@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
 
+/**
+ * useFetch - A hook that handles fetching data from an API with loading and error states.
+ * @param url - The URL to fetch data from.
+ * @param options - Optional fetch options (like method, headers, etc.).
+ * @returns An object containing the fetched data, loading state, and error state.
+ */
+
 function useFetch<T>(
   url: string,
   options?: RequestInit,
