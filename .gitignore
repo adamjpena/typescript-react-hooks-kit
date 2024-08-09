@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+
+# Logs
+logs/
+*.log
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Temporary files
+.DS_Store
+
+# Jest coverage reports
+coverage/
+
+# Environment files
+.env
