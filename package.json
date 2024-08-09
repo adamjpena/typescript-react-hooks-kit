@@ -1,6 +1,6 @@
 {
   "name": "typescript-react-hooks-kit",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^8.0.1",
     "@types/jest": "^29.5.12",
     "@types/react": "^17.0.0",
