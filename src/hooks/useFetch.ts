@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
  * @param options - Optional fetch options (like method, headers, etc.).
  * @returns An object containing the fetched data, loading state, and error state.
  */
-
 function useFetch<T>(
   url: string,
   options?: RequestInit,

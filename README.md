@@ -2,6 +2,10 @@
 
 A collection of highly reusable and well-documented custom React hooks written in TypeScript.
 
+## About the Project
+
+**TypeScript React Hooks Kit** is developed and maintained by [Adam Peña](https://adamjpena.com), under the auspices of [Cindersoft, LLC](https://cindersoft.com). This project is part of a broader effort to provide high-quality open-source tools and libraries for the React and TypeScript communities.
+
 ## Installation
 
 ```bash

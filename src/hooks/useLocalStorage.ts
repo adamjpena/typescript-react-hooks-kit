@@ -6,7 +6,6 @@ import { useCallback, useState } from 'react';
  * @param initialValue - The initial value to be stored, if the key is not already in localStorage.
  * @returns An array containing the stored value and a function to update it.
  */
-
 function useLocalStorage<T>(
   key: string,
   initialValue: T,

@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from 'react';
  * @param limit - The time limit in milliseconds for throttling.
  * @returns The throttled value.
  */
-
 function useThrottle<T>(value: T, limit: number): T {
   const [throttledValue, setThrottledValue] = useState(value);
   const lastRan = useRef(Date.now());

@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
  * @param delay - The delay in milliseconds before updating the value.
  * @returns The debounced value.
  */
-
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
