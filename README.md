@@ -201,6 +201,22 @@ const MyComponent = () => {
 };
 ```
 
+### `useMediaQuery`
+
+**Description:** Detects whether the viewport matches a given media query.
+
+**Usage:**
+
+```typescript
+import { useMediaQuery } from 'typescript-react-hooks-kit';
+
+const MyComponent = () => {
+  const isLargeScreen = useMediaQuery('(min-width: 1024px)');
+
+  return <div>{isLargeScreen ? 'Large Screen' : 'Small Screen'}</div>;
+};
+```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request with your improvements.
