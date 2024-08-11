@@ -1,13 +1,24 @@
-import { renderHook } from '@testing-library/react-hooks';
+import React, { act } from 'react';
+import { render } from '@testing-library/react';
 import useInterval from '../hooks/useInterval';
-import { act } from 'react-dom/test-utils';
 
 jest.useFakeTimers();
+
+const TestComponent = ({
+  callback,
+  delay,
+}: {
+  callback: () => void;
+  delay: number | null;
+}) => {
+  useInterval(callback, delay);
+  return <div>Test Component</div>;
+};
 
 describe('useInterval', () => {
   it('should call the callback at specified intervals', () => {
     const callback = jest.fn();
-    renderHook(() => useInterval(callback, 1000));
+    render(<TestComponent callback={callback} delay={1000} />);
 
     expect(callback).not.toHaveBeenCalled();
 
@@ -24,7 +35,7 @@ describe('useInterval', () => {
 
   it('should not run the interval when delay is null', () => {
     const callback = jest.fn();
-    renderHook(() => useInterval(callback, null));
+    render(<TestComponent callback={callback} delay={null} />);
 
     act(() => {
       jest.advanceTimersByTime(5000);

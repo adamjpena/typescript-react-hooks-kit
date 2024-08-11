@@ -12,22 +12,6 @@ A collection of highly reusable and well-documented custom React hooks written i
 npm install typescript-react-hooks-kit
 ```
 
-## Usage
-
-You can import hooks either individually or as named exports from the package.
-
-### Example of importing individually:
-
-```typescript
-import useDebounce from 'typescript-react-hooks-kit/useDebounce';
-```
-
-### Example of importing as named exports:
-
-```typescript
-import { useDebounce } from 'typescript-react-hooks-kit';
-```
-
 ## Hooks
 
 ### `useDebounce`
@@ -37,7 +21,7 @@ import { useDebounce } from 'typescript-react-hooks-kit';
 **Usage:**
 
 ```typescript
-import useDebounce from 'typescript-react-hooks-kit/useDebounce';
+import { useDebounce } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const [value, setValue] = useState('');
@@ -54,7 +38,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useThrottle from 'typescript-react-hooks-kit/useThrottle';
+import { useThrottle } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const [value, setValue] = useState('');
@@ -71,7 +55,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useAsync from 'typescript-react-hooks-kit/useAsync';
+import { useAsync } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const { loading, error, value } = useAsync(async () => {
@@ -93,7 +77,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useFetch from 'typescript-react-hooks-kit/useFetch';
+import { useFetch } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const { data, loading, error } = useFetch('https://api.example.com/data');
@@ -112,7 +96,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useInterval from 'typescript-react-hooks-kit/useInterval';
+import { useInterval } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const [count, setCount] = useState(0);
@@ -132,7 +116,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useLocalStorage from 'typescript-react-hooks-kit/useLocalStorage';
+import { useLocalStorage } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const [name, setName] = useLocalStorage('name', 'John Doe');
@@ -148,7 +132,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useToggle from 'typescript-react-hooks-kit/useToggle';
+import { useToggle } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const [isOn, toggleIsOn, setIsOn] = useToggle(false);
@@ -170,7 +154,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import usePrevious from 'typescript-react-hooks-kit/usePrevious';
+import { usePrevious } from 'typescript-react-hooks-kit';
 
 const MyComponent = ({ value }) => {
   const prevValue = usePrevious(value);
@@ -186,7 +170,7 @@ const MyComponent = ({ value }) => {
 **Usage:**
 
 ```typescript
-import useOnClickOutside from 'typescript-react-hooks-kit/useOnClickOutside';
+import { useOnClickOutside } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const ref = useRef(null);
@@ -206,7 +190,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useWindowSize from 'typescript-react-hooks-kit/useWindowSize';
+import { useWindowSize } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const { width, height } = useWindowSize();
@@ -227,7 +211,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useMediaQuery from 'typescript-react-hooks-kit/useMediaQuery';
+import { useMediaQuery } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const isLargeScreen = useMediaQuery('(min-width: 1024px)');
@@ -243,7 +227,7 @@ const MyComponent = () => {
 **Usage:**
 
 ```typescript
-import useForm from 'typescript-react-hooks-kit/useForm';
+import { useForm } from 'typescript-react-hooks-kit';
 
 const MyComponent = () => {
   const { values, handleChange, resetForm } = useForm({ name: '', email: '' });
