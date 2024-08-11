@@ -180,6 +180,27 @@ const MyComponent = () => {
 };
 ```
 
+### `useWindowSize`
+
+**Description:** Tracks the dimensions of the browser window, which is useful for responsive design.
+
+**Usage:**
+
+```typescript
+import { useWindowSize } from 'typescript-react-hooks-kit';
+
+const MyComponent = () => {
+  const { width, height } = useWindowSize();
+
+  return (
+    <div>
+      <p>Window width: {width}px</p>
+      <p>Window height: {height}px</p>
+    </div>
+  );
+};
+```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request with your improvements.
