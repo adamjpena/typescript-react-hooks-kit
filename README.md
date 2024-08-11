@@ -12,6 +12,24 @@ A collection of highly reusable and well-documented custom React hooks written i
 npm install typescript-react-hooks-kit
 ```
 
+## TypeScript Configuration
+
+To use this library effectively, ensure your `tsconfig.json` is set up correctly. Specifically, the `moduleResolution` setting should be compatible.
+
+### Recommended `moduleResolution` Setting
+
+While the default `moduleResolution` is typically sufficient, you may need to use `"node16"`, `"nodenext"`, or `"bundler"` for projects using ES modules.
+
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "node16" // or "nodenext" or "bundler"
+  }
+}
+```
+
+This ensures TypeScript correctly resolves module imports from this library.
+
 ## Usage
 
 You can import hooks either individually or as named exports from the package.
