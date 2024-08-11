@@ -4,7 +4,7 @@
   "description": "A collection of reusable, well-documented React hooks written in TypeScript.",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c rollup.config.mjs",
     "test": "jest"
   },
   "keywords": [
