@@ -2,7 +2,11 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import useForm from '../hooks/useForm';
 
-const TestComponent = ({ initialValues }: { initialValues: Record<string, any> }) => {
+const TestComponent = ({
+  initialValues,
+}: {
+  initialValues: Record<string, any>;
+}) => {
   const { values, handleChange, resetForm } = useForm(initialValues);
 
   return (
