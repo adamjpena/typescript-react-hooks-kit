@@ -217,6 +217,38 @@ const MyComponent = () => {
 };
 ```
 
+### `useForm`
+
+**Description:** Manages form state, including handling input changes and form submission.
+
+**Usage:**
+
+```typescript
+import { useForm } from 'typescript-react-hooks-kit';
+
+const MyComponent = () => {
+  const { values, handleChange, resetForm } = useForm({ name: '', email: '' });
+
+  return (
+    <form>
+      <input
+        name="name"
+        value={values.name}
+        onChange={handleChange}
+      />
+      <input
+        name="email"
+        value={values.email}
+        onChange={handleChange}
+      />
+      <button type="button" onClick={resetForm}>
+        Reset
+      </button>
+    </form>
+  );
+};
+```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request with your improvements.
