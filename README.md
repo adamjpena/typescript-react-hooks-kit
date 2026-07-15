@@ -1,295 +1,176 @@
 # TypeScript React Hooks Kit
 
-A collection of highly reusable and well-documented custom React hooks written in TypeScript.
+[![npm version](https://img.shields.io/npm/v/typescript-react-hooks-kit.svg)](https://www.npmjs.com/package/typescript-react-hooks-kit)
+[![CI](https://github.com/adamjpena/typescript-react-hooks-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/adamjpena/typescript-react-hooks-kit/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/typescript-react-hooks-kit.svg)](LICENSE)
 
-## About the Project
+A small, typed collection of React hooks for everyday application work.
 
-**TypeScript React Hooks Kit** is developed and maintained by [Adam Peña](https://adamjpena.com), under the auspices of [Cindersoft, LLC](https://cindersoft.com). This project is part of a broader effort to provide high-quality open-source tools and libraries for the React and TypeScript communities.
-
-## Installation
+## Install
 
 ```bash
 npm install typescript-react-hooks-kit
 ```
 
-## TypeScript Configuration
+React is a peer dependency. The package supports React 18 and React 19, and it
+is tested against React 19.
 
-To use this library effectively, ensure your `tsconfig.json` is set up correctly. Specifically, the `moduleResolution` setting should be compatible.
+TypeScript React projects normally already include React type packages. If your
+project does not, install them too:
 
-### Recommended `moduleResolution` Setting
+```bash
+npm install -D @types/react @types/react-dom
+```
 
-While the default `moduleResolution` is typically sufficient, you may need to use `"node16"`, `"nodenext"`, or `"bundler"` for projects using ES modules.
+## Imports
 
-```json
-{
-  "compilerOptions": {
-    "moduleResolution": "node16" // or "nodenext" or "bundler"
-  }
+Use named imports when you want several hooks from one entry point:
+
+```tsx
+import { useDebounce, useLocalStorage } from 'typescript-react-hooks-kit';
+```
+
+Use subpath imports when you want one hook directly:
+
+```tsx
+import useDebounce from 'typescript-react-hooks-kit/useDebounce';
+```
+
+Both import styles include TypeScript declarations and work in standard ESM, CommonJS, Vite, Next.js, Jest/Vitest, and TypeScript projects without extra package setup.
+
+## Included Hooks
+
+| Hook                | What it does                                                                  |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `useAsync`          | Runs an async function and returns loading, error, and value state.           |
+| `useDebounce`       | Delays value updates until changes settle for a given delay.                  |
+| `useFetch`          | Fetches JSON data with loading, error, and abort cleanup.                     |
+| `useForm`           | Manages simple form values, input changes, reset, and direct field updates.   |
+| `useInterval`       | Runs the latest callback on an interval that can be paused with `null`.       |
+| `useLocalStorage`   | Stores React state in `localStorage` with safe parsing and fallback behavior. |
+| `useMediaQuery`     | Tracks whether a media query currently matches.                               |
+| `useOnClickOutside` | Calls a handler when mouse or touch events happen outside an element.         |
+| `usePrevious`       | Returns the value from the previous render.                                   |
+| `useThrottle`       | Limits how often a changing value is committed.                               |
+| `useToggle`         | Provides boolean state, a toggle function, and the state setter.              |
+| `useWindowSize`     | Tracks the current browser window width and height.                           |
+
+## Examples
+
+### Debounce input
+
+```tsx
+import { useState } from 'react';
+import { useDebounce } from 'typescript-react-hooks-kit';
+
+function SearchBox() {
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 300);
+
+  return (
+    <label>
+      Search
+      <input value={query} onChange={(event) => setQuery(event.target.value)} />
+      <span>Searching for: {debouncedQuery}</span>
+    </label>
+  );
 }
 ```
 
-This ensures TypeScript correctly resolves module imports from this library.
+### Persist state in localStorage
 
-## Usage
+```tsx
+import { useLocalStorage } from 'typescript-react-hooks-kit';
 
-You can import hooks either individually or as named exports from the package.
-
-### Example of importing individually:
-
-```typescript
-import useDebounce from 'typescript-react-hooks-kit/useDebounce';
-```
-
-### Example of importing as named exports:
-
-```typescript
-import { useDebounce } from 'typescript-react-hooks-kit';
-```
-
-## Hooks
-
-### `useDebounce`
-
-**Description:** Delays updating a value until a specified time has passed without changes.
-
-**Usage:**
-
-```typescript
-import useDebounce from 'typescript-react-hooks-kit/useDebounce';
-
-const MyComponent = () => {
-  const [value, setValue] = useState('');
-  const debouncedValue = useDebounce(value, 500);
-
-  return <input value={value} onChange={(e) => setValue(e.target.value)} />;
-};
-```
-
-### `useThrottle`
-
-**Description:** Limits how often a function can be called.
-
-**Usage:**
-
-```typescript
-import useThrottle from 'typescript-react-hooks-kit/useThrottle';
-
-const MyComponent = () => {
-  const [value, setValue] = useState('');
-  const throttledValue = useThrottle(value, 1000);
-
-  return <input value={throttledValue} onChange={(e) => setValue(e.target.value)} />;
-};
-```
-
-### `useAsync`
-
-**Description:** Manages an asynchronous operation, handling loading, error, and result states.
-
-**Usage:**
-
-```typescript
-import useAsync from 'typescript-react-hooks-kit/useAsync';
-
-const MyComponent = () => {
-  const { loading, error, value } = useAsync(async () => {
-    const response = await fetch('https://api.example.com/data');
-    return response.json();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  return <div>Data: {JSON.stringify(value)}</div>;
-};
-```
-
-### `useFetch`
-
-**Description:** Handles fetching data from an API with loading and error states.
-
-**Usage:**
-
-```typescript
-import useFetch from 'typescript-react-hooks-kit/useFetch';
-
-const MyComponent = () => {
-  const { data, loading, error } = useFetch('https://api.example.com/data');
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  return <div>Data: {JSON.stringify(data)}</div>;
-};
-```
-
-### `useInterval`
-
-**Description:** Runs a function at specified intervals, like `setInterval`.
-
-**Usage:**
-
-```typescript
-import useInterval from 'typescript-react-hooks-kit/useInterval';
-
-const MyComponent = () => {
-  const [count, setCount] = useState(0);
-
-  useInterval(() => {
-    setCount((prevCount) => prevCount + 1);
-  }, 1000);
-
-  return <div>Count: {count}</div>;
-};
-```
-
-### `useLocalStorage`
-
-**Description:** Simplifies working with `localStorage` in React.
-
-**Usage:**
-
-```typescript
-import useLocalStorage from 'typescript-react-hooks-kit/useLocalStorage';
-
-const MyComponent = () => {
-  const [name, setName] = useLocalStorage('name', 'John Doe');
-
-  return <input value={name} onChange={(e) => setName(e.target.value)} />;
-};
-```
-
-### `useToggle`
-
-**Description:** Provides simple toggle logic for boolean states.
-
-**Usage:**
-
-```typescript
-import useToggle from 'typescript-react-hooks-kit/useToggle';
-
-const MyComponent = () => {
-  const [isOn, toggleIsOn, setIsOn] = useToggle(false);
+function ThemeToggle() {
+  const [theme, setTheme] = useLocalStorage<'light' | 'dark'>('theme', 'light');
 
   return (
-    <div>
-      <button onClick={toggleIsOn}>Toggle</button>
-      <button onClick={() => setIsOn(true)}>Set On</button>
-      <div>{isOn ? 'On' : 'Off'}</div>
-    </div>
+    <button
+      type="button"
+      onClick={() =>
+        setTheme((current) => (current === 'light' ? 'dark' : 'light'))
+      }
+    >
+      {theme}
+    </button>
   );
-};
+}
 ```
 
-### `usePrevious`
+### Fetch JSON
 
-**Description:** Tracks the previous value of a state or prop.
+```tsx
+import { useFetch } from 'typescript-react-hooks-kit';
 
-**Usage:**
+interface User {
+  id: number;
+  name: string;
+}
 
-```typescript
-import usePrevious from 'typescript-react-hooks-kit/usePrevious';
+function UserName({ userId }: { userId: number }) {
+  const { data, loading, error } = useFetch<User>(`/api/users/${userId}`);
 
-const MyComponent = ({ value }) => {
-  const prevValue = usePrevious(value);
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error.message}</p>;
 
-  return <div>Current: {value}, Previous: {prevValue}</div>;
-};
+  return <p>{data?.name}</p>;
+}
 ```
 
-### `useOnClickOutside`
+### Simple form state
 
-**Description:** Detects clicks outside a specified element and triggers a handler.
+```tsx
+import { useForm } from 'typescript-react-hooks-kit';
 
-**Usage:**
-
-```typescript
-import useOnClickOutside from 'typescript-react-hooks-kit/useOnClickOutside';
-
-const MyComponent = () => {
-  const ref = useRef(null);
-
-  useOnClickOutside(ref, () => {
-    console.log('Clicked outside!');
+function ContactForm() {
+  const { values, handleChange, resetForm } = useForm({
+    name: '',
+    email: '',
+    subscribed: false,
   });
-
-  return <div ref={ref}>Click outside me!</div>;
-};
-```
-
-### `useWindowSize`
-
-**Description:** Tracks the dimensions of the browser window, which is useful for responsive design.
-
-**Usage:**
-
-```typescript
-import useWindowSize from 'typescript-react-hooks-kit/useWindowSize';
-
-const MyComponent = () => {
-  const { width, height } = useWindowSize();
-
-  return (
-    <div>
-      <p>Window width: {width}px</p>
-      <p>Window height: {height}px</p>
-    </div>
-  );
-};
-```
-
-### `useMediaQuery`
-
-**Description:** Detects whether the viewport matches a given media query.
-
-**Usage:**
-
-```typescript
-import useMediaQuery from 'typescript-react-hooks-kit/useMediaQuery';
-
-const MyComponent = () => {
-  const isLargeScreen = useMediaQuery('(min-width: 1024px)');
-
-  return <div>{isLargeScreen ? 'Large Screen' : 'Small Screen'}</div>;
-};
-```
-
-### `useForm`
-
-**Description:** Manages form state, including handling input changes and form submission.
-
-**Usage:**
-
-```typescript
-import useForm from 'typescript-react-hooks-kit/useForm';
-
-const MyComponent = () => {
-  const { values, handleChange, resetForm } = useForm({ name: '', email: '' });
 
   return (
     <form>
-      <input
-        name="name"
-        value={values.name}
-        onChange={handleChange}
-      />
-      <input
-        name="email"
-        value={values.email}
-        onChange={handleChange}
-      />
+      <input name="name" value={values.name} onChange={handleChange} />
+      <input name="email" value={values.email} onChange={handleChange} />
+      <label>
+        <input
+          checked={values.subscribed}
+          name="subscribed"
+          onChange={handleChange}
+          type="checkbox"
+        />
+        Subscribe
+      </label>
       <button type="button" onClick={resetForm}>
         Reset
       </button>
     </form>
   );
-};
+}
 ```
 
-## Contributing
+## Runtime Notes
 
-Contributions are welcome! Please open an issue or submit a pull request with your improvements.
+- Browser-specific hooks guard access to `window`, `document`, and `localStorage` so they can render safely in SSR environments.
+- `useFetch` aborts pending requests when the component unmounts or the request changes.
+- React and React DOM are peer dependencies, so this package will not install a second React copy into your app.
+- The package publishes dual ESM and CommonJS builds with TypeScript declarations for the root entry and every hook subpath.
+
+## Development
+
+```bash
+npm ci
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+npm run pack:check
+```
+
+`npm run release:dry-run` runs the full local release gate and performs an npm publish dry run.
 
 ## License
 
-[MIT](LICENSE)
+MIT

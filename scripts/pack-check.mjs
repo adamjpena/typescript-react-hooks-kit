@@ -176,6 +176,8 @@ try {
       tarballPath,
       'react@19.2.7',
       'react-dom@19.2.7',
+      '@types/react@19.2.17',
+      '@types/react-dom@19.2.3',
       'typescript@7.0.2',
     ],
     fixtureDirectory,
