@@ -2,7 +2,7 @@
 
 All notable changes to this package are documented here.
 
-## Unreleased
+## 1.0.0 - 2026-07-15
 
 - Modernized the package for React 19 and TypeScript 7 development.
 - Added complete root and subpath exports for every included hook.

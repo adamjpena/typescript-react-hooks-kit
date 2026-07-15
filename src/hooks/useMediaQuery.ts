@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const getMatches = (query: string, defaultValue: boolean): boolean => {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.matchMedia !== 'function'
+  ) {
     return defaultValue;
   }
 
@@ -14,12 +17,13 @@ const getMatches = (query: string, defaultValue: boolean): boolean => {
  * @returns A boolean indicating whether the media query matches the current viewport.
  */
 const useMediaQuery = (query: string, defaultValue = false): boolean => {
-  const [matches, setMatches] = useState(() =>
-    getMatches(query, defaultValue),
-  );
+  const [matches, setMatches] = useState(() => getMatches(query, defaultValue));
 
   useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    if (
+      typeof window === 'undefined' ||
+      typeof window.matchMedia !== 'function'
+    ) {
       return;
     }
 

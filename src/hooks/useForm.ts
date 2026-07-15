@@ -2,18 +2,16 @@ import { useState } from 'react';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 
 export type FormFieldValue =
-  | string
-  | number
-  | boolean
-  | readonly string[]
-  | undefined;
+  string | number | boolean | readonly string[] | undefined;
 
 export type FormValues = Record<string, FormFieldValue>;
 
 export interface UseFormReturn<TValues extends FormValues> {
   values: TValues;
   handleChange: (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    event: ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => void;
   resetForm: () => void;
   setValue: <TName extends keyof TValues>(
@@ -44,7 +42,9 @@ const useForm = <TValues extends FormValues>(
   const [values, setValues] = useState<TValues>(initialValues);
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    event: ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name } = event.target;
     const value = getFieldValue(event.target);

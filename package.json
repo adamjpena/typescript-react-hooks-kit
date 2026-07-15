@@ -1,6 +1,6 @@
 {
   "name": "typescript-react-hooks-kit",
-  "version": "0.13.0",
+  "version": "1.0.0",
   "description": "A polished collection of reusable React hooks written in TypeScript.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -168,6 +168,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
