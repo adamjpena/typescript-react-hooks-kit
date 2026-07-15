@@ -3,6 +3,7 @@ node_modules/
 
 # Build outputs
 dist/
+*.tgz
 
 # Logs
 logs/
@@ -14,7 +15,7 @@ logs/
 # Temporary files
 .DS_Store
 
-# Jest coverage reports
+# Test coverage reports
 coverage/
 
 # Environment files
