@@ -9,21 +9,42 @@ import { useEffect, useRef, useState } from 'react';
 function useThrottle<T>(value: T, limit: number): T {
   const [throttledValue, setThrottledValue] = useState(value);
   const lastRan = useRef(Date.now());
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const handler = setTimeout(
-      () => {
-        const now = Date.now();
-        if (now - lastRan.current >= limit) {
-          setThrottledValue(value);
-          lastRan.current = now;
-        }
-      },
-      limit - (Date.now() - lastRan.current),
-    );
+    const normalizedLimit = Math.max(0, limit);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if (normalizedLimit === 0) {
+      setThrottledValue(value);
+      lastRan.current = Date.now();
+      return;
+    }
+
+    const now = Date.now();
+    const remaining = normalizedLimit - (now - lastRan.current);
+
+    if (remaining <= 0) {
+      setThrottledValue(value);
+      lastRan.current = now;
+      return;
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      setThrottledValue(value);
+      lastRan.current = Date.now();
+      timeoutRef.current = null;
+    }, remaining);
 
     return () => {
-      clearTimeout(handler);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
   }, [value, limit]);
 

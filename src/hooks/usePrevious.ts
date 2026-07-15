@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react';
  * @returns The previous value before the current render.
  */
 function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T>();
+  const ref = useRef<T | undefined>(undefined);
 
   useEffect(() => {
     ref.current = value;

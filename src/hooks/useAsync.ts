@@ -1,4 +1,19 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { DependencyList } from 'react';
+
+export interface UseAsyncState<T> {
+  loading: boolean;
+  error: Error | null;
+  value: T | null;
+}
+
+const toError = (error: unknown): Error => {
+  if (error instanceof Error) {
+    return error;
+  }
+
+  return new Error(String(error));
+};
 
 /**
  * useAsync - A hook that manages an asynchronous operation, handling loading, error, and result states.
@@ -8,33 +23,51 @@ import { useCallback, useEffect, useState } from 'react';
  */
 function useAsync<T>(
   asyncFunction: () => Promise<T>,
-  dependencies: any[] = [],
-): { loading: boolean; error: Error | null; value: T | null } {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [value, setValue] = useState<T | null>(null);
-
-  const execute = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    setValue(null);
-
-    asyncFunction()
-      .then((response) => {
-        setValue(response);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-  }, dependencies);
+  dependencies: DependencyList = [],
+): UseAsyncState<T> {
+  const [state, setState] = useState<UseAsyncState<T>>({
+    loading: true,
+    error: null,
+    value: null,
+  });
 
   useEffect(() => {
-    execute();
-  }, [execute]);
+    let isCurrent = true;
 
-  return { loading, error, value };
+    setState({
+      loading: true,
+      error: null,
+      value: null,
+    });
+
+    asyncFunction()
+      .then((value) => {
+        if (isCurrent) {
+          setState({
+            loading: false,
+            error: null,
+            value,
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        if (isCurrent) {
+          setState({
+            loading: false,
+            error: toError(error),
+            value: null,
+          });
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+    // The dependency list intentionally mirrors React's useEffect API.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, dependencies);
+
+  return state;
 }
 
 export default useAsync;

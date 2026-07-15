@@ -10,9 +10,16 @@ function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
+    const normalizedDelay = Math.max(0, delay);
+
+    if (normalizedDelay === 0) {
+      setDebouncedValue(value);
+      return;
+    }
+
     const handler = setTimeout(() => {
       setDebouncedValue(value);
-    }, delay);
+    }, normalizedDelay);
 
     return () => {
       clearTimeout(handler);

@@ -1,4 +1,11 @@
 import { useCallback, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+
+export type UseToggleReturn = readonly [
+  boolean,
+  () => void,
+  Dispatch<SetStateAction<boolean>>,
+];
 
 /**
  * useToggle - A hook that provides simple toggle logic for boolean states.
@@ -7,13 +14,12 @@ import { useCallback, useState } from 'react';
  */
 function useToggle(
   initialValue: boolean = false,
-): [boolean, () => void, (value: boolean) => void] {
+): UseToggleReturn {
   const [state, setState] = useState<boolean>(initialValue);
 
   const toggle = useCallback(() => setState((prev) => !prev), []);
-  const setToggle = useCallback((value: boolean) => setState(value), []);
 
-  return [state, toggle, setToggle];
+  return [state, toggle, setState] as const;
 }
 
 export default useToggle;

@@ -1,4 +1,39 @@
 import { useCallback, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+
+export type UseLocalStorageReturn<T> = readonly [
+  T,
+  Dispatch<SetStateAction<T>>,
+];
+
+const canUseLocalStorage = (): boolean => {
+  try {
+    return typeof window !== 'undefined' && Boolean(window.localStorage);
+  } catch {
+    return false;
+  }
+};
+
+const readStoredValue = <T>(key: string, initialValue: T): T => {
+  if (!canUseLocalStorage()) {
+    return initialValue;
+  }
+
+  try {
+    const item = window.localStorage.getItem(key);
+    return item === null ? initialValue : (JSON.parse(item) as T);
+  } catch {
+    return initialValue;
+  }
+};
+
+const resolveValue = <T>(value: SetStateAction<T>, previousValue: T): T => {
+  if (typeof value === 'function') {
+    return (value as (currentValue: T) => T)(previousValue);
+  }
+
+  return value;
+};
 
 /**
  * useLocalStorage - A hook that simplifies working with localStorage in React.
@@ -9,21 +44,31 @@ import { useCallback, useState } from 'react';
 function useLocalStorage<T>(
   key: string,
   initialValue: T,
-): [T, (value: T) => void] {
-  const storedValue = localStorage.getItem(key);
-  const [storedState, setStoredState] = useState<T>(
-    storedValue ? JSON.parse(storedValue) : initialValue,
+): UseLocalStorageReturn<T> {
+  const [storedState, setStoredState] = useState<T>(() =>
+    readStoredValue(key, initialValue),
   );
 
   const setValue = useCallback(
-    (value: T) => {
-      setStoredState(value);
-      localStorage.setItem(key, JSON.stringify(value));
+    (value: SetStateAction<T>) => {
+      setStoredState((previousValue) => {
+        const nextValue = resolveValue(value, previousValue);
+
+        if (canUseLocalStorage()) {
+          try {
+            window.localStorage.setItem(key, JSON.stringify(nextValue));
+          } catch {
+            // State updates should still work when storage is unavailable.
+          }
+        }
+
+        return nextValue;
+      });
     },
     [key],
   );
 
-  return [storedState, setValue];
+  return [storedState, setValue] as const;
 }
 
 export default useLocalStorage;
