@@ -1,54 +1,44 @@
-import React, { act } from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it } from 'vitest';
 import useLocalStorage from '../hooks/useLocalStorage';
-
-const TestComponent = ({
-  keyName,
-  initialValue,
-  newValue,
-}: {
-  keyName: string;
-  initialValue: string;
-  newValue: string;
-}) => {
-  const [storedValue, setStoredValue] = useLocalStorage(keyName, initialValue);
-
-  return (
-    <div>
-      <span data-testid="stored-value">{storedValue}</span>
-      <button onClick={() => setStoredValue(newValue)}>Update Value</button>
-    </div>
-  );
-};
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
-    localStorage.clear();
+    window.localStorage.clear();
   });
 
-  it('should return initial value if no value is stored', () => {
-    render(<TestComponent keyName="key" initialValue="initial" newValue="" />);
-    expect(screen.getByTestId('stored-value').textContent).toBe('initial');
+  it('returns the initial value when storage is empty', () => {
+    const { result } = renderHook(() => useLocalStorage('name', 'Ada'));
+
+    expect(result.current[0]).toBe('Ada');
   });
 
-  it('should return stored value if it exists in localStorage', () => {
-    localStorage.setItem('key', JSON.stringify('storedValue'));
-    render(<TestComponent keyName="key" initialValue="initial" newValue="" />);
-    expect(screen.getByTestId('stored-value').textContent).toBe('storedValue');
+  it('reads an existing stored value', () => {
+    window.localStorage.setItem('name', JSON.stringify('Grace'));
+
+    const { result } = renderHook(() => useLocalStorage('name', 'Ada'));
+
+    expect(result.current[0]).toBe('Grace');
   });
 
-  it('should update localStorage when state changes', () => {
-    render(
-      <TestComponent
-        keyName="key"
-        initialValue="initial"
-        newValue="newValue"
-      />,
-    );
+  it('updates state and localStorage', () => {
+    const { result } = renderHook(() => useLocalStorage('name', 'Ada'));
+
     act(() => {
-      screen.getByText('Update Value').click();
+      result.current[1]((previousValue) => `${previousValue} Lovelace`);
     });
-    expect(localStorage.getItem('key')).toBe(JSON.stringify('newValue'));
-    expect(screen.getByTestId('stored-value').textContent).toBe('newValue');
+
+    expect(result.current[0]).toBe('Ada Lovelace');
+    expect(window.localStorage.getItem('name')).toBe(
+      JSON.stringify('Ada Lovelace'),
+    );
+  });
+
+  it('falls back to the initial value for malformed JSON', () => {
+    window.localStorage.setItem('name', '{bad-json');
+
+    const { result } = renderHook(() => useLocalStorage('name', 'Ada'));
+
+    expect(result.current[0]).toBe('Ada');
   });
 });

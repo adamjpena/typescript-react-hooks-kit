@@ -1,42 +1,76 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import useMediaQuery from '../hooks/useMediaQuery';
 
-const TestComponent = ({ query }: { query: string }) => {
-  const matches = useMediaQuery(query);
-  return (
-    <span data-testid="media-query-result">
-      {matches ? 'Matched' : 'Not Matched'}
-    </span>
-  );
+const mockMatchMedia = (initialMatches: boolean) => {
+  let listener: ((event: MediaQueryListEvent) => void) | undefined;
+  let matches = initialMatches;
+
+  const mediaQueryList = {
+    get matches() {
+      return matches;
+    },
+    media: '(min-width: 800px)',
+    onchange: null,
+    addEventListener: vi.fn((_eventName, callback) => {
+      listener = callback as (event: MediaQueryListEvent) => void;
+    }),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  } as unknown as MediaQueryList;
+
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: vi.fn(() => mediaQueryList),
+  });
+
+  return {
+    setMatches(nextMatches: boolean) {
+      matches = nextMatches;
+      act(() => {
+        listener?.({ matches: nextMatches } as MediaQueryListEvent);
+      });
+    },
+  };
 };
 
 describe('useMediaQuery', () => {
-  beforeEach(() => {
-    global.matchMedia = jest.fn().mockImplementation((query) => ({
-      matches: query === '(min-width: 1024px)',
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    }));
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  it('should return true when the media query matches', () => {
-    render(<TestComponent query="(min-width: 1024px)" />);
-    expect(screen.getByTestId('media-query-result').textContent).toBe(
-      'Matched',
-    );
+  it('returns the initial media query state', () => {
+    mockMatchMedia(true);
+
+    const { result } = renderHook(() => useMediaQuery('(min-width: 800px)'));
+
+    expect(result.current).toBe(true);
   });
 
-  it('should return false when the media query does not match', () => {
-    (global.matchMedia as jest.Mock).mockImplementation((query) => ({
-      matches: query !== '(min-width: 1024px)',
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    }));
+  it('updates when the media query changes', () => {
+    const matchMedia = mockMatchMedia(false);
 
-    render(<TestComponent query="(min-width: 1024px)" />);
-    expect(screen.getByTestId('media-query-result').textContent).toBe(
-      'Not Matched',
+    const { result } = renderHook(() => useMediaQuery('(min-width: 800px)'));
+
+    expect(result.current).toBe(false);
+
+    matchMedia.setMatches(true);
+
+    expect(result.current).toBe(true);
+  });
+
+  it('uses the default value when matchMedia is unavailable', () => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: undefined,
+    });
+
+    const { result } = renderHook(() =>
+      useMediaQuery('(min-width: 800px)', true),
     );
+
+    expect(result.current).toBe(true);
   });
 });

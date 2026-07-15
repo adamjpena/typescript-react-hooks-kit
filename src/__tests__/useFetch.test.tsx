@@ -1,58 +1,71 @@
-import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import useFetch from '../hooks/useFetch';
-
-beforeEach(() => {
-  global.fetch = jest.fn();
-});
-
-afterEach(() => {
-  jest.resetAllMocks();
-});
 
 interface FetchData {
   message: string;
 }
 
-const TestComponent = ({ url }: { url: string }) => {
-  const { data, loading, error } = useFetch<FetchData>(url);
-
-  if (loading) return <span>Loading...</span>;
-  if (error) return <span>{`Error: ${error.message}`}</span>;
-  return <span>{data?.message}</span>;
-};
-
 describe('useFetch', () => {
-  it('should return data after a successful fetch', async () => {
-    const mockData: FetchData = { message: 'Hello World' };
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => mockData,
-    });
-
-    render(<TestComponent url="https://api.example.com/data" />);
-
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).toBeNull();
-      expect(screen.getByText('Hello World')).toBeInTheDocument();
-    });
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
   });
 
-  it('should handle fetch error', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue({
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('returns data after a successful fetch', async () => {
+    const mockData: FetchData = { message: 'Hello World' };
+
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: async () => mockData,
+    } as Response);
+
+    const { result } = renderHook(() =>
+      useFetch<FetchData>('https://api.example.com/data'),
+    );
+
+    expect(result.current.loading).toBe(true);
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.data).toEqual(mockData);
+    expect(result.current.error).toBeNull();
+  });
+
+  it('returns a useful error for non-ok responses', async () => {
+    vi.mocked(fetch).mockResolvedValue({
       ok: false,
+      status: 404,
       statusText: 'Not Found',
+    } as Response);
+
+    const { result } = renderHook(() =>
+      useFetch<FetchData>('https://api.example.com/error'),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.data).toBeNull();
+    expect(result.current.error?.message).toBe('Request failed: 404 Not Found');
+  });
+
+  it('aborts pending requests on unmount', () => {
+    let signal: AbortSignal | undefined;
+
+    vi.mocked(fetch).mockImplementation((_input, init) => {
+      signal = init?.signal ?? undefined;
+      return new Promise<Response>(() => undefined);
     });
 
-    render(<TestComponent url="https://api.example.com/error" />);
+    const { unmount } = renderHook(() =>
+      useFetch<FetchData>('https://api.example.com/slow'),
+    );
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).toBeNull();
-    });
+    unmount();
 
-    const errorText = screen.getByText(/Error: Not Found/i);
-    expect(errorText).toBeInTheDocument();
+    expect(signal?.aborted).toBe(true);
   });
 });

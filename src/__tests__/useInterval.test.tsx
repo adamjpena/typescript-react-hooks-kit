@@ -1,45 +1,67 @@
-import React, { act } from 'react';
-import { render } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import useInterval from '../hooks/useInterval';
 
-jest.useFakeTimers();
-
-const TestComponent = ({
-  callback,
-  delay,
-}: {
-  callback: () => void;
-  delay: number | null;
-}) => {
-  useInterval(callback, delay);
-  return <div>Test Component</div>;
-};
-
 describe('useInterval', () => {
-  it('should call the callback at specified intervals', () => {
-    const callback = jest.fn();
-    render(<TestComponent callback={callback} delay={1000} />);
-
-    expect(callback).not.toHaveBeenCalled();
-
-    act(() => {
-      jest.advanceTimersByTime(1000);
-    });
-    expect(callback).toHaveBeenCalledTimes(1);
-
-    act(() => {
-      jest.advanceTimersByTime(4000);
-    });
-    expect(callback).toHaveBeenCalledTimes(5);
+  beforeEach(() => {
+    vi.useFakeTimers();
   });
 
-  it('should not run the interval when delay is null', () => {
-    const callback = jest.fn();
-    render(<TestComponent callback={callback} delay={null} />);
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('calls the callback at the requested interval', () => {
+    const callback = vi.fn();
+
+    renderHook(() => useInterval(callback, 1000));
 
     act(() => {
-      jest.advanceTimersByTime(5000);
+      vi.advanceTimersByTime(3000);
     });
+
+    expect(callback).toHaveBeenCalledTimes(3);
+  });
+
+  it('pauses when delay is null', () => {
+    const callback = vi.fn();
+    const { rerender } = renderHook(
+      ({ delay }) => useInterval(callback, delay),
+      {
+        initialProps: {
+          delay: 1000 as number | null,
+        },
+      },
+    );
+
+    rerender({ delay: null });
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+
     expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('uses the latest callback without recreating the interval', () => {
+    const firstCallback = vi.fn();
+    const secondCallback = vi.fn();
+    const { rerender } = renderHook(
+      ({ callback }) => useInterval(callback, 1000),
+      {
+        initialProps: {
+          callback: firstCallback,
+        },
+      },
+    );
+
+    rerender({ callback: secondCallback });
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(firstCallback).not.toHaveBeenCalled();
+    expect(secondCallback).toHaveBeenCalledTimes(1);
   });
 });

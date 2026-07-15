@@ -1,6 +1,6 @@
 {
   "name": "typescript-react-hooks-kit",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "A polished collection of reusable React hooks written in TypeScript.",
   "type": "module",
   "main": "./dist/index.cjs",

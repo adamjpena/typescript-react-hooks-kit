@@ -1,55 +1,50 @@
-import React, { act } from 'react';
-import { render, screen } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import useAsync from '../hooks/useAsync';
 
 describe('useAsync', () => {
-  it('should return data after a successful async operation', async () => {
-    const asyncFunction = jest.fn().mockResolvedValue('Success');
+  it('resolves async values', async () => {
+    const asyncFunction = vi.fn().mockResolvedValue('Success');
 
-    await act(async () => {
-      render(<TestComponent asyncFunction={asyncFunction} />);
-    });
+    const { result } = renderHook(() => useAsync(asyncFunction, []));
 
-    await act(async () => {
-      await asyncFunction();
-    });
+    expect(result.current.loading).toBe(true);
 
-    expect(screen.queryByText('Loading...')).toBeNull();
-    expect(screen.getByText('Success')).toBeInTheDocument();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(asyncFunction).toHaveBeenCalledTimes(1);
+    expect(result.current.value).toBe('Success');
+    expect(result.current.error).toBeNull();
   });
 
-  it('should handle errors in async operation', async () => {
-    const asyncFunction = jest.fn().mockRejectedValue(new Error('Failure'));
+  it('normalizes rejected errors', async () => {
+    const asyncFunction = vi.fn().mockRejectedValue('Failure');
 
-    await act(async () => {
-      render(<TestComponent asyncFunction={asyncFunction} />);
-    });
+    const { result } = renderHook(() => useAsync(asyncFunction, []));
 
-    await act(async () => {
-      try {
-        await asyncFunction();
-      } catch {}
-    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(screen.queryByText('Loading...')).toBeNull();
-    expect(screen.getByText('Error: Failure')).toBeInTheDocument();
+    expect(result.current.value).toBeNull();
+    expect(result.current.error?.message).toBe('Failure');
+  });
+
+  it('ignores results after unmount', async () => {
+    let resolvePromise: (value: string) => void = () => undefined;
+    const asyncFunction = vi.fn(
+      () =>
+        new Promise<string>((resolve) => {
+          resolvePromise = resolve;
+        }),
+    );
+
+    const { result, unmount } = renderHook(() => useAsync(asyncFunction, []));
+
+    expect(result.current.loading).toBe(true);
+    unmount();
+    resolvePromise('Late success');
+
+    await Promise.resolve();
+
+    expect(asyncFunction).toHaveBeenCalledTimes(1);
   });
 });
-
-const TestComponent = ({
-  asyncFunction,
-}: {
-  asyncFunction: () => Promise<string>;
-}) => {
-  const { loading, error, value } = useAsync(asyncFunction);
-
-  if (loading) {
-    return <span>Loading...</span>;
-  }
-
-  if (error) {
-    return <span>{`Error: ${error.message}`}</span>;
-  }
-
-  return <span>{value}</span>;
-};

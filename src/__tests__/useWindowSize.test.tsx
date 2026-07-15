@@ -1,40 +1,44 @@
-import React, { act } from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import useWindowSize from '../hooks/useWindowSize';
 
-// Test component that uses the useWindowSize hook
-const TestComponent = () => {
-  const { width, height } = useWindowSize();
-  return (
-    <div>
-      <div data-testid="width">{width}</div>
-      <div data-testid="height">{height}</div>
-    </div>
-  );
+const setWindowSize = (width: number, height: number) => {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: width,
+  });
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    value: height,
+  });
 };
 
 describe('useWindowSize', () => {
-  it('should return the current window dimensions', () => {
-    global.innerWidth = 1024;
-    global.innerHeight = 768;
+  it('returns the current window size', () => {
+    setWindowSize(1024, 768);
 
-    render(<TestComponent />);
+    const { result } = renderHook(() => useWindowSize());
 
-    expect(screen.getByTestId('width')).toHaveTextContent('1024');
-    expect(screen.getByTestId('height')).toHaveTextContent('768');
+    expect(result.current).toEqual({
+      width: 1024,
+      height: 768,
+    });
   });
 
-  it('should update the dimensions when the window is resized', () => {
-    render(<TestComponent />);
+  it('updates when the window resizes', () => {
+    setWindowSize(1024, 768);
 
-    // Update the window size and dispatch a resize event
+    const { result } = renderHook(() => useWindowSize());
+
+    setWindowSize(1200, 800);
+
     act(() => {
-      global.innerWidth = 1200;
-      global.innerHeight = 800;
-      global.dispatchEvent(new Event('resize'));
+      window.dispatchEvent(new Event('resize'));
     });
 
-    expect(screen.getByTestId('width')).toHaveTextContent('1200');
-    expect(screen.getByTestId('height')).toHaveTextContent('800');
+    expect(result.current).toEqual({
+      width: 1200,
+      height: 800,
+    });
   });
 });

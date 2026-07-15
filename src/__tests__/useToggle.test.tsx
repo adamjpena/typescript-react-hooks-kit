@@ -1,43 +1,27 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import useToggle from '../hooks/useToggle';
 
-const TestComponent = ({ initialValue }: { initialValue: boolean }) => {
-  const [value, toggle, setValue] = useToggle(initialValue);
-
-  return (
-    <div>
-      <div data-testid="value">{value.toString()}</div>
-      <button onClick={toggle}>Toggle</button>
-      <button onClick={() => setValue(true)}>Set True</button>
-      <button onClick={() => setValue(false)}>Set False</button>
-    </div>
-  );
-};
-
 describe('useToggle', () => {
-  it('should initialize with the correct value', () => {
-    render(<TestComponent initialValue={true} />);
-    expect(screen.getByTestId('value')).toHaveTextContent('true');
+  it('uses false as the default value', () => {
+    const { result } = renderHook(() => useToggle());
+
+    expect(result.current[0]).toBe(false);
   });
 
-  it('should toggle the value', () => {
-    render(<TestComponent initialValue={false} />);
+  it('toggles and sets values', () => {
+    const { result } = renderHook(() => useToggle(false));
 
-    fireEvent.click(screen.getByText('Toggle'));
-    expect(screen.getByTestId('value')).toHaveTextContent('true');
+    act(() => {
+      result.current[1]();
+    });
 
-    fireEvent.click(screen.getByText('Toggle'));
-    expect(screen.getByTestId('value')).toHaveTextContent('false');
-  });
+    expect(result.current[0]).toBe(true);
 
-  it('should set the value to a specific boolean', () => {
-    render(<TestComponent initialValue={false} />);
+    act(() => {
+      result.current[2](false);
+    });
 
-    fireEvent.click(screen.getByText('Set True'));
-    expect(screen.getByTestId('value')).toHaveTextContent('true');
-
-    fireEvent.click(screen.getByText('Set False'));
-    expect(screen.getByTestId('value')).toHaveTextContent('false');
+    expect(result.current[0]).toBe(false);
   });
 });

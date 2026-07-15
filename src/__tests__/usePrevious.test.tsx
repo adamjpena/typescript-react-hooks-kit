@@ -1,41 +1,25 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import usePrevious from '../hooks/usePrevious';
 
-// Create a Test Component that uses the usePrevious hook
-const TestComponent = ({ value }: { value: string }) => {
-  const previous = usePrevious(value);
-  return (
-    <div>
-      <span data-testid="previous-value">{previous}</span>
-    </div>
-  );
-};
-
 describe('usePrevious', () => {
-  it('should return undefined initially', () => {
-    render(<TestComponent value="initial" />);
+  it('returns undefined before a previous value exists', () => {
+    const { result } = renderHook(() => usePrevious('first'));
 
-    // The previous value should be undefined initially
-    expect(screen.getByTestId('previous-value')).toBeEmptyDOMElement();
+    expect(result.current).toBeUndefined();
   });
 
-  it('should return the previous value after an update', () => {
-    const { rerender } = render(<TestComponent value="first" />);
+  it('returns the value from the previous render', () => {
+    const { result, rerender } = renderHook(({ value }) => usePrevious(value), {
+      initialProps: {
+        value: 'first',
+      },
+    });
 
-    // After initial render
-    expect(screen.getByTestId('previous-value')).toBeEmptyDOMElement();
+    rerender({ value: 'second' });
+    expect(result.current).toBe('first');
 
-    // Update the value
-    rerender(<TestComponent value="second" />);
-
-    // The previous value should be 'first'
-    expect(screen.getByTestId('previous-value')).toHaveTextContent('first');
-
-    // Update the value again
-    rerender(<TestComponent value="third" />);
-
-    // The previous value should be 'second'
-    expect(screen.getByTestId('previous-value')).toHaveTextContent('second');
+    rerender({ value: 'third' });
+    expect(result.current).toBe('second');
   });
 });

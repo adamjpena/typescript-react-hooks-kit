@@ -1,37 +1,55 @@
-import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import useDebounce from '../hooks/useDebounce';
 
-jest.useFakeTimers();
-
-const TestComponent = ({ value, delay }: { value: string; delay: number }) => {
-  const debouncedValue = useDebounce(value, delay);
-  return <span>{debouncedValue}</span>;
-};
-
 describe('useDebounce', () => {
-  it('should debounce value after the specified delay', () => {
-    const { rerender } = render(<TestComponent value="initial" delay={500} />);
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
 
-    expect(screen.getByText('initial')).toBeInTheDocument();
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
-    // Update the value and delay
-    rerender(<TestComponent value="changed" delay={500} />);
+  it('delays value updates until the delay passes', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      {
+        initialProps: {
+          value: 'initial',
+          delay: 500,
+        },
+      },
+    );
 
-    // Fast-forward time by 300ms
+    rerender({ value: 'changed', delay: 500 });
+
     act(() => {
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(499);
     });
 
-    // Value should still be 'initial' as the delay hasn't passed yet
-    expect(screen.getByText('initial')).toBeInTheDocument();
+    expect(result.current).toBe('initial');
 
-    // Fast-forward remaining 200ms
     act(() => {
-      jest.advanceTimersByTime(200);
+      vi.advanceTimersByTime(1);
     });
 
-    // Now the value should be 'changed'
-    expect(screen.getByText('changed')).toBeInTheDocument();
+    expect(result.current).toBe('changed');
+  });
+
+  it('updates immediately for non-positive delays', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      {
+        initialProps: {
+          value: 'initial',
+          delay: 0,
+        },
+      },
+    );
+
+    rerender({ value: 'changed', delay: -1 });
+
+    expect(result.current).toBe('changed');
   });
 });

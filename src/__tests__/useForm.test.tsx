@@ -1,29 +1,48 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import useForm from '../hooks/useForm';
 
-const TestComponent = ({
-  initialValues,
-}: {
-  initialValues: Record<string, any>;
-}) => {
-  const { values, handleChange, resetForm } = useForm(initialValues);
+interface ContactFormValues {
+  name: string;
+  email: string;
+  subscribed: boolean;
+}
+
+const initialValues: ContactFormValues = {
+  name: 'Ada',
+  email: 'ada@example.com',
+  subscribed: false,
+};
+
+const TestForm = () => {
+  const { values, handleChange, resetForm, setValue } =
+    useForm<ContactFormValues>(initialValues);
 
   return (
     <form>
       <input
+        aria-label="Name"
         name="name"
-        value={values.name}
         onChange={handleChange}
-        data-testid="name-input"
+        value={values.name}
       />
       <input
+        aria-label="Email"
         name="email"
-        value={values.email}
         onChange={handleChange}
-        data-testid="email-input"
+        value={values.email}
       />
-      <button type="button" onClick={resetForm} data-testid="reset-button">
+      <input
+        aria-label="Subscribed"
+        checked={values.subscribed}
+        name="subscribed"
+        onChange={handleChange}
+        type="checkbox"
+      />
+      <button type="button" onClick={() => setValue('name', 'Grace')}>
+        Set name
+      </button>
+      <button type="button" onClick={resetForm}>
         Reset
       </button>
     </form>
@@ -31,35 +50,26 @@ const TestComponent = ({
 };
 
 describe('useForm', () => {
-  it('should initialize form with given values', () => {
-    const initialValues = { name: 'John', email: 'john@example.com' };
-    render(<TestComponent initialValues={initialValues} />);
+  it('tracks text and checkbox changes', () => {
+    render(<TestForm />);
 
-    expect(screen.getByTestId('name-input')).toHaveValue('John');
-    expect(screen.getByTestId('email-input')).toHaveValue('john@example.com');
+    fireEvent.change(screen.getByLabelText('Name'), {
+      target: { value: 'Lin' },
+    });
+    fireEvent.click(screen.getByLabelText('Subscribed'));
+
+    expect(screen.getByLabelText('Name')).toHaveValue('Lin');
+    expect(screen.getByLabelText('Subscribed')).toBeChecked();
   });
 
-  it('should update form values on change', () => {
-    const initialValues = { name: 'John', email: 'john@example.com' };
-    render(<TestComponent initialValues={initialValues} />);
+  it('sets individual values and resets to initial values', () => {
+    render(<TestForm />);
 
-    fireEvent.change(screen.getByTestId('name-input'), {
-      target: { value: 'Jane' },
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Set name' }));
+    expect(screen.getByLabelText('Name')).toHaveValue('Grace');
 
-    expect(screen.getByTestId('name-input')).toHaveValue('Jane');
-  });
-
-  it('should reset form values', () => {
-    const initialValues = { name: 'John', email: 'john@example.com' };
-    render(<TestComponent initialValues={initialValues} />);
-
-    fireEvent.change(screen.getByTestId('name-input'), {
-      target: { value: 'Jane' },
-    });
-    fireEvent.click(screen.getByTestId('reset-button'));
-
-    expect(screen.getByTestId('name-input')).toHaveValue('John');
-    expect(screen.getByTestId('email-input')).toHaveValue('john@example.com');
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+    expect(screen.getByLabelText('Name')).toHaveValue('Ada');
+    expect(screen.getByLabelText('Email')).toHaveValue('ada@example.com');
   });
 });

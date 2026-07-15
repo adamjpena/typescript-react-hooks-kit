@@ -1,32 +1,55 @@
-import React, { act } from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import useThrottle from '../hooks/useThrottle';
 
-jest.useFakeTimers();
-
-const TestComponent = ({ value }: { value: string }) => {
-  const throttledValue = useThrottle(value, 1000);
-  return <div data-testid="throttled-value">{throttledValue}</div>;
-};
-
 describe('useThrottle', () => {
-  it('should update value at throttled intervals', () => {
-    const { rerender } = render(<TestComponent value="initial" />);
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
 
-    expect(screen.getByTestId('throttled-value')).toHaveTextContent('initial');
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
-    rerender(<TestComponent value="updated" />);
+  it('limits how often values update', () => {
+    const { result, rerender } = renderHook(
+      ({ value, limit }) => useThrottle(value, limit),
+      {
+        initialProps: {
+          value: 'initial',
+          limit: 1000,
+        },
+      },
+    );
+
+    rerender({ value: 'changed', limit: 1000 });
 
     act(() => {
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(999);
     });
 
-    expect(screen.getByTestId('throttled-value')).toHaveTextContent('initial'); // Still the initial value because delay hasn't passed
+    expect(result.current).toBe('initial');
 
     act(() => {
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(1);
     });
 
-    expect(screen.getByTestId('throttled-value')).toHaveTextContent('updated'); // Now it should be the updated value
+    expect(result.current).toBe('changed');
+  });
+
+  it('updates immediately for non-positive limits', () => {
+    const { result, rerender } = renderHook(
+      ({ value, limit }) => useThrottle(value, limit),
+      {
+        initialProps: {
+          value: 'initial',
+          limit: 1000,
+        },
+      },
+    );
+
+    rerender({ value: 'changed', limit: 0 });
+
+    expect(result.current).toBe('changed');
   });
 });

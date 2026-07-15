@@ -1,35 +1,37 @@
-import React, { useRef } from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { useRef } from 'react';
+import { describe, expect, it, vi } from 'vitest';
 import useOnClickOutside from '../hooks/useOnClickOutside';
 
-// Create a Test Component that uses the useOnClickOutside hook
-const TestComponent = ({ onClickOutside }: { onClickOutside: () => void }) => {
+const TestComponent = ({ handler }: { handler: () => void }) => {
   const ref = useRef<HTMLDivElement>(null);
-  useOnClickOutside(ref, onClickOutside);
+  useOnClickOutside(ref, handler);
+
   return (
-    <div ref={ref} data-testid="test-element">
-      Click me
+    <div>
+      <div ref={ref}>Inside</div>
+      <button type="button">Outside</button>
     </div>
   );
 };
 
 describe('useOnClickOutside', () => {
-  it('should call the handler when clicking outside the element', () => {
-    const handler = jest.fn();
-    render(<TestComponent onClickOutside={handler} />);
+  it('calls the handler for outside clicks', () => {
+    const handler = vi.fn();
 
-    // Simulate clicking outside the element
-    fireEvent.mouseDown(document);
+    render(<TestComponent handler={handler} />);
 
-    expect(handler).toHaveBeenCalled();
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Outside' }));
+
+    expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  it('should not call the handler when clicking inside the element', () => {
-    const handler = jest.fn();
-    render(<TestComponent onClickOutside={handler} />);
+  it('does not call the handler for inside clicks', () => {
+    const handler = vi.fn();
 
-    // Simulate clicking inside the element
-    fireEvent.mouseDown(screen.getByTestId('test-element'));
+    render(<TestComponent handler={handler} />);
+
+    fireEvent.mouseDown(screen.getByText('Inside'));
 
     expect(handler).not.toHaveBeenCalled();
   });
